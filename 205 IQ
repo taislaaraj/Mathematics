@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+# -*-coding:utf-8 -*
+
+from math import *
+import sys
+from math import *
+from time import time
+
+def gest_err(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
+def gest_err_two(tab):
+    for x in tab:
+        try:
+            val = float(x)
+            if val < 0 or val > 200:
+                gest_err("Must be int between 0 an 2.5")
+                sys.exit(84)
+        except ValueError:
+            gest_err("int expected")
+            sys.exit(84)
+
+def disp_h():
+    print("USAGE\n"
+    "\t./205IQ u s [IQ1] [IQ2]\n\n"
+    "DESCRIPTION\t"
+    "\n\tu\tmean"
+    "\n\tIQ1\tminimum IQ"
+    "\n\tIQ2\tmaximum IQ"
+    )
+    sys.exit(0)
+
+def fct_calc(u, s, i):
+    u = (1/(s*sqrt(2*pi))*exp(-((i - u)**2)/(2*s**2)))
+    return u
+
+def main(tab):
+    i = 0.0
+    u = int(tab[0])
+    s = int(tab[1])
+    if len(tab) == 2:
+        while i <= 200:
+            print("%d %.05f" % (i, fct_calc(u, s, i)))
+            i+=1
+    elif len(tab) == 3:
+        z = int(tab[2])
+        cpt = 0.0
+        while i < z:
+            cpt += fct_calc(u, s, i)
+            i+=0.01
+        print("%0.1f%% of people have an IQ inferior to %d" %(cpt, z))
+    elif len(tab) == 4:
+        z = int(tab[2])
+        y = int(tab[3])
+        if z > y: sys.exit(84)
+        i = z * 1.0
+        cpt = 0.0
+        while i < y:
+            cpt += fct_calc(u, s, i)
+            i+=0.01
+        print("%0.1f%% of people have an IQ between %d and %d" %(cpt, z, y))
+
+tab = []
+for arg in sys.argv:
+    if arg == "-h": disp_h()
+    tab.append(arg)
+tab.pop(0)
+if len(sys.argv) < 3 or len(sys.argv) > 5: sys.exit(84)
+gest_err_two(tab)
+main(tab)
