@@ -1,0 +1,74 @@
+#!/usr/bin/python3
+# -*-coding:utf-8 -*
+
+from __future__ import print_function
+import sys
+from math import *
+
+def gest_err(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
+def gest_err_two(pSize, sSize, p):
+    try:
+        pSize = int(pSize)
+        sSize = int(sSize)
+        p = float(p)
+    except ValueError:
+        gest_err("int expected")
+        sys.exit(84)
+    if pSize <= 0 or sSize > pSize or sSize <= 0:
+        sys.exit(84)
+    if p > 100 or p < 0:
+        sys.exit(84)
+
+def disp_h():
+    print("USAGE\n\
+        \t./209poll pSize aSize p\
+        \n\nDESCRIPTION\
+        \n\tpSize\tsize of the population\
+        \n\tsSize\tsize of the sample (supposed to be representative)\
+        \n\tp\tpercentage of voting intentions for a specific candidate")
+    sys.exit(0)
+
+def check(inter):
+    if inter < 0:
+        return 0
+    elif inter > 100:
+        return 100
+    else:
+        return inter
+
+def poll(pSize, sSize, p):
+    print("Population size:\t\t" + str(pSize))
+    print("Sample size:\t\t\t" + str(sSize))
+    print("Voting intentions:\t\t" +str(p) + "%")
+    p = p / 100
+    variance = ((p *(1 - p)) / sSize) * ((pSize - sSize) / (pSize - 1))
+    print("Variance:\t\t\t%.6f" % variance)
+    res1 = 2 * 1.96 * sqrt(variance) / 2 * 100
+    res2 = 2 * 2.58 * sqrt(variance) / 2 * 100
+    inter1 = p * 100 - res1
+    inter2 = p * 100 + res1
+    inter3 = p * 100 - res2
+    inter4 = p * 100 + res2
+    inter1 = check(inter1)
+    inter2 = check(inter2)
+    inter3 = check(inter3)
+    inter4 = check(inter4)
+    
+    print("95%% confidence interval:\t[%.2f%%; %.2f%%]" % (float(inter1), float(inter2)))
+    print("99%% confidence interval:\t[%.2f%%; %.2f%%]" % (float(inter3), float(inter4)))
+
+def prog():
+    tab = []
+    for arg in sys.argv:
+        if arg == "-h": disp_h()
+        tab.append(arg)
+    if len(sys.argv) != 4:
+        gest_err("Wrong arguments")
+        sys.exit(84)
+    tab.pop(0)
+    gest_err_two(tab[0], tab[1], tab[2])
+    poll(int(tab[0]), int(tab[1]), float(tab[2]))
+
+prog()
