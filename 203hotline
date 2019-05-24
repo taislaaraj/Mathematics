@@ -1,0 +1,109 @@
+#!/usr/bin/python3
+# -*-coding:utf-8 -*
+
+import sys
+from math import factorial, exp
+from time import time
+
+
+def poisson(c, k):
+    return((exp(-c) * c **k) / factorial(k))
+
+def combinaison(n, k):
+    return(factorial(n)//(factorial(k) * factorial(n - k)))
+
+def binomiale(k, n, p):
+    return(combinaison(n, k) * (p ** k) * ((1 - p) ** (n - k)))
+
+def bino(d):
+    if d < 0:
+        exit(84)
+    p = d / 28800
+    comp_time = time()
+    print("Binomial distribution:")
+    i = 0
+    while i < 51:
+        if (i + 1) % 6 and i != 50:
+            print(str(i) + " -> %.3f" % (binomiale(i, 3500, p)), end='\t')
+        else:
+            print(str(i) + " -> %.3f" % (binomiale(i, 3500, p)), end='\n')
+        i += 1
+    over = 0
+    i = 26
+    if d == 35000:
+        print("overload: 100.0%")
+    else:
+        while i < 101:
+            over += binomiale(i, 3500, p)
+            i += 1
+        print("overload: %.1f%%" %(over * 100))
+    print("computation time: %.2f ms\n" %((time() - comp_time) * 1000))
+    
+    comp_time = time()
+    c = p * 3500
+    print("Poisson distribution:")
+    i = 0
+    while i < 51:
+        if (i + 1) % 6 and i != 50:
+            print(str(i) + " -> %.3f" % (poisson(c, i)), end='\t')
+        else:
+            print(str(i) + " -> %.3f" % (poisson(c, i)), end='\n')
+        i += 1        
+    over = 0
+    i = 26
+    if d == 35000:
+        print("overload: 100.0%")
+    else:
+        while i < 101:
+            over += poisson(c, i)
+            i += 1
+        print("overload: %.1f%%" %(over * 100))
+    print("computation time: %.2f ms" %((time() - comp_time) * 1000))
+
+def comb(n, k):
+    if n < k or n < 0 or k < 0:
+        exit(84)
+    print(str(k) + "-combination of a " + str(n) + " set:")
+    a = combinaison(n, k)
+    print(a)
+
+def gest_err(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
+def gest_err_two(tab):
+    for x in tab:
+        try:
+            val = int(x)
+            if val < 0:
+                gest_err("Must be int strictly higher then 0")
+                sys.exit(84)
+        except ValueError:
+            gest_err("int expected")
+            sys.exit(84)
+
+def disp_h():
+    print("USAGE\n"
+    "\t./203hotline [n k | d]\n\n"
+    "DESCRIPTION\n\t"
+    "n\tn value for the computation of (n k)\n"
+    "\tk\tk value for the computation of (n k)\n"
+    "\td\td average duration of calls (in seconds)")
+    sys.exit(0)
+
+def main():
+    tab = []
+    for arg in sys.argv:
+        if arg == "-h": disp_h()
+        tab.append(arg)
+    tab.pop(0)
+    gest_err_two(tab)
+    if len(sys.argv) == 2:
+        bino(int(tab[0]))
+        sys.exit(0)
+    if len(sys.argv) == 3:
+        comb(int(tab[0]), int(tab[1]))
+        sys.exit(0)
+    else:
+        gest_err("Wrong arguments")
+        sys.exit(84)
+main()
