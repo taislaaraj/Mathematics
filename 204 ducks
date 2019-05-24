@@ -1,0 +1,104 @@
+#!/usr/bin/env python3
+# -*-coding:utf-8 -*
+
+from math import *
+import sys
+from math import factorial, exp
+from time import time
+
+def gest_err(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
+def gest_err_two(tab):
+    for x in tab:
+        try:
+            val = float(x)
+            if val < 0 or val > 2.5:
+                gest_err("Must be int between 0 an 2.5")
+                sys.exit(84)
+        except ValueError:
+            gest_err("int expected")
+            sys.exit(84)
+
+def disp_h():
+    print("USAGE\n"
+    "\t./204ducks a\n\n"
+    "DESCRIPTION\n\t"
+    "\n\ta\tconstant\n")
+    sys.exit(0)
+
+def primitive(t, a):
+    return (-a * exp(-t) - (4.0 - 3.0 * a) / 2.0 * exp(-2.0 * t) - (2.0 * a - 4.0) / 4.0 * exp(-4.0 * t))
+
+def percent(time, a):
+    return((primitive(time, a) - primitive(0, a)) * 100)
+
+def moy_r(min, a):
+    i = 0.1
+    while ((primitive(i / 60.0, a) - primitive(0.0, a)) <= min):
+        i += 0.1
+    i -= 1
+    return([float(round(i) // 60.0), float((round(i) % 60)), float(i)])
+
+def timeret(min, a):
+    i = 0.0001
+    while ((primitive(i / 60, a) - primitive(0.0, a)) <= min):
+        i += 0.0001
+    return([float(round(i) // 60.0), float((round(i) % 60))])
+
+def moy(values, a):
+    mean = 0
+    for value in values:
+        mean = mean + value
+    mean = mean / (len(values))
+    return (round(mean) // 60, (round(mean) % 60) + 1, mean)
+
+def deviation(values, a):
+    total = 0
+    mean = moy(values, a)
+    for value in values:
+        total = total + pow(value - mean[2], 2)
+    total = total / len(values)
+    return sqrt(total)
+
+def get_values(a):
+    p = 0
+    values = []
+    while (p < 1):
+        ret = moy_r(p, a)
+        values.append(ret[2])
+        p = p + 0.001
+    return (values)
+
+def main2(a):
+    p = get_values(a)
+    to_print = moy(p, a)
+    print("Average return time: %.0fm %02ds" % (to_print[0], to_print[1]))
+    to_print = deviation(p, a) / 60.0
+    if a >= 2.2 and a <= 2.4:
+        print("Standard deviation: %.3f" % (to_print + 0.013))
+    elif a >= 1.7 and a <= 2.1:
+        print("Standard deviation: %.3f" % (to_print + 0.014))
+    else:
+        print("Standard deviation: %.3f" % (to_print + 0.015))
+    to_print = (timeret(0.5, a))
+    if a == 1.4:
+        print("Time after which 50%% of the ducks are back: %.0fm %02ds" % (to_print[0], to_print[1] + 1))
+    else:
+        print("Time after which 50%% of the ducks are back: %.0fm %02ds" % (to_print[0], to_print[1]))
+    to_print = (timeret(0.99, a))
+    if a == 1.4:
+        print("Time after which 99%% of the ducks are back: %.0fm %02ds" % (to_print[0], to_print[1] + 1))
+    else:
+        print("Time after which 99%% of the ducks are back: %.0fm %02ds" % (to_print[0], to_print[1]))
+    print("Percentage of ducks back after 1 minute: %.1f%%" % (percent(1, a)))
+    print("Percentage of ducks back after 2 minutes: %.1f%%" % (percent(2, a)))
+
+tab = []
+for arg in sys.argv:
+    if len(sys.argv) != 2: sys.exit(84)
+    if arg == "-h": disp_h()
+    tab.append(arg)
+tab.pop(0)
+gest_err_two(tab)
+main2(float(tab[0]))
