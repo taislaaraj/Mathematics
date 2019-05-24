@@ -1,0 +1,140 @@
+#!/usr/bin/python3
+# -*-coding:utf-8 -*
+
+from __future__ import print_function
+import sys
+from statistics import mean
+
+def print_final(tabX, taby, a, b, tabA):
+    count = 0
+    i = 10
+    resx = 0
+    resy = 0
+    varx = 0
+    vary = 0
+    while i < 60:
+        resx += sum(tabX[count]) * i
+        resy += sum(taby[count]) * i
+        i += 10
+        count += 1
+    i = 10
+    count = 0
+    while i < 60:
+        varx += (sum(tabX[count]) * (i - resx)**2)
+        vary += (sum(taby[count]) * (i - resy)**2)       
+        i += 10
+        count += 1
+    print("expected value of X:\t%.1f" % resx)
+    print("variance of X:\t\t%.1f" % varx)
+    print("expected value of Y:\t%.1f" % resy)
+    print("variance of Y:\t\t%.1f" % vary)
+    count = 0
+    i = 20
+    resz = 0
+    varz = 0
+    while i < 110:
+        resz += tabA[count] * i
+        i += 10
+        count += 1
+    i = 20
+    count = 0
+    while i < 110:
+        varz += (tabA[count] * (i - resz)**2)
+        i += 10
+        count += 1
+    print("expected value of Z:\t%.1f" % resz)
+    print("variance of Z:\t\t%.1f" % varz)
+    print("–––––––––––––––––––––––––––––––––––––––––––––––––––––")
+
+def calc_fct(a, b, x, y):
+    z = ((float(a) - float(x))*(float(b) - float(y))) / ((5 * float(a) - 150)*(5 * float(b) - 150))
+    return z
+
+def print_end(tabX, taby, a, b):
+    print("z\t20\t30\t40\t50\t60\t70\t80\t90\t100\ttotal")
+    tabA = []
+    tabA.append(calc_fct(a, b, 10, 10))
+    tabA.append((calc_fct(a, b, 20, 10) + calc_fct(a, b, 10, 20)))
+    tabA.append((calc_fct(a, b, 20, 20) + calc_fct(a, b, 10, 30) + calc_fct(a, b, 30, 10)))
+    tabA.append((calc_fct(a, b, 30, 20) + calc_fct(a, b, 20, 30) + calc_fct(a, b, 10, 40) + calc_fct(a, b, 40, 10)))
+    tabA.append((calc_fct(a, b, 30, 30) + calc_fct(a, b, 50, 10) + calc_fct(a, b, 10, 50) + calc_fct(a, b, 40, 20) + calc_fct(a, b, 20, 40)))
+    tabA.append((calc_fct(a, b, 40, 30) + calc_fct(a, b, 30, 40) + calc_fct(a, b, 20, 50) + calc_fct(a, b, 50, 20)))
+    tabA.append((calc_fct(a, b, 40, 40) + calc_fct(a, b, 50, 30) + calc_fct(a, b, 30, 50)))
+    tabA.append((calc_fct(a, b, 40, 50) + calc_fct(a, b, 50, 40)))
+    tabA.append(calc_fct(a, b, 50, 50))
+    print("p(Z=z)", end="")
+    for i in range(0,9):
+        print("\t%.3f" %tabA[i], end="")
+    print("\t1")
+    print("–––––––––––––––––––––––––––––––––––––––––––––––––––––")
+    print_final(tabX, taby, a, b, tabA)
+
+def print_result(a, b):
+    x = 10
+    y = 10
+    r = 0
+    tabX = [[], [], [], [], []]
+    taby = [[], [], [], [], []]
+    print("–––––––––––––––––––––––––––––––––––––––––––––––––––––")
+    print("\tX=10\tX=20\tX=30\tX=40\tX=50\tY law")
+    while y < 60:
+        print("Y=" + str(y), end="")
+        r = 0
+        while x < 60:
+            z = ((float(a) - float(x))*(float(b) - float(y))) / ((5 * float(a) - 150)*(5 * float(b) - 150))
+            r += z
+            print("\t%.3f" % z, end="")
+            if x == 10: tabX[0].append(float(z))
+            if x == 20: tabX[1].append(float(z))
+            if x == 30: tabX[2].append(float(z))
+            if x == 40: tabX[3].append(float(z))
+            if x == 50: tabX[4].append(float(z))
+            if y == 10: taby[0].append(float(z))
+            if y == 20: taby[1].append(float(z))
+            if y == 30: taby[2].append(float(z))
+            if y == 40: taby[3].append(float(z))
+            if y == 50: taby[4].append(float(z))
+            x += 10
+        x = 10
+        y += 10
+        print("\t%.3f" %r)
+    print("X law", end="")
+    for i in range (0,5):
+        print("\t%.3f" %sum(tabX[i]), end="")
+    print("\t1")
+    print("–––––––––––––––––––––––––––––––––––––––––––––––––––––")
+    print_end(tabX, taby, a, b)
+
+def gest_err(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
+def gest_err_two(tab):
+    for x in tab:
+        try:
+            val = int(x)
+            if val < 51:
+                gest_err("Must be int strictly higher then 50")
+                sys.exit(84)
+        except ValueError:
+            gest_err("int expected")
+            sys.exit(84)
+
+def disp_h():
+    print("USAGE\n\t./202unsold a b\n\nDESCRIPTION\n\ta\
+    constant computed from the past results\n\tb constant\
+    computed from the past results")
+    sys.exit(0)
+
+def main():
+    tab = []
+    for arg in sys.argv:
+        if arg == "-h": disp_h()
+        tab.append(arg)
+    if len(sys.argv) != 3:
+        gest_err("Wrong arguments")
+        sys.exit(84)
+    tab.pop(0)
+    gest_err_two(tab)
+    print_result(tab[0], tab[1])
+
+main()
